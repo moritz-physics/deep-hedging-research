@@ -554,7 +554,7 @@ wheels = [
 [[package]]
 name = "deep-hedging-research"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "backtest-engine" },
     { name = "matplotlib" },
