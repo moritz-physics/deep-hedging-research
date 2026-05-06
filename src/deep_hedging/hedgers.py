@@ -95,15 +95,18 @@ def compute_pnl(
     paths: torch.Tensor,
     positions: torch.Tensor,
     payoff: torch.Tensor,
-    cost_bps: float = 0.0,
-    initial_premium: float | None = None,
+    cost_bps: float,
+    initial_premium: float,
 ) -> torch.Tensor:
     """Terminal P&L of an option seller running the given hedge.
 
     The seller receives ``initial_premium`` at ``t = 0``, runs the
     hedge described by ``positions``, pays the option ``payoff`` at
     maturity, and pays linear transaction costs proportional to
-    notional traded.
+    notional traded. Premium is a required argument so that callers
+    must explicitly choose the framing (e.g. fair BS price, mid-market
+    premium, zero for pure replication-error analysis); the helper
+    does not implicitly assume the option is sold at the BS price.
 
     Cost model (basis points of notional):
     ``cost_n = (cost_bps / 10000) * |h_n - h_{n-1}| * S_{t_n}`` with
@@ -120,11 +123,12 @@ def compute_pnl(
     payoff : torch.Tensor
         Shape ``(n_paths,)``. Option payoff at maturity, paid by the
         seller.
-    cost_bps : float, optional
-        Per-trade proportional cost in basis points. Default ``0``.
-    initial_premium : float or None, optional
-        Premium received at ``t = 0``. If ``None``, no premium is
-        added (pure replication-error framing). Default ``None``.
+    cost_bps : float
+        Per-trade proportional cost in basis points. Pass ``0.0`` for
+        the frictionless case.
+    initial_premium : float
+        Premium received at ``t = 0``. Pass ``0.0`` for pure
+        replication-error framing.
 
     Returns
     -------
@@ -160,10 +164,7 @@ def compute_pnl(
     cost_rate = cost_bps / 10_000.0
     costs = cost_rate * (trades * paths).sum(dim=1)
 
-    pnl = hedge_pnl - costs - payoff
-    if initial_premium is not None:
-        pnl = pnl + initial_premium
-    return pnl
+    return hedge_pnl - costs - payoff + initial_premium
 
 
 __all__ = [

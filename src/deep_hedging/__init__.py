@@ -1,9 +1,6 @@
 """Deep Hedging research package.
 
-Public API for scripts and notebooks. The session-by-session build
-adds policies and training utilities to this surface; for now it
-exposes the GBM simulator, Black-Scholes utilities, and the BS-delta
-benchmark hedger.
+Public API for scripts and notebooks.
 """
 
 from deep_hedging.hedgers import (
@@ -16,15 +13,24 @@ from deep_hedging.instruments import (
     bs_call_price,
     european_call_payoff,
 )
-from deep_hedging.simulator import get_device, simulate_gbm
+from deep_hedging.policies import HedgePolicy, NeuralHedger
+from deep_hedging.simulator import simulate_gbm
+from deep_hedging.training import cvar_loss, entropic_risk, train_hedger
+from deep_hedging.utils import get_device, set_seed
 
 __all__ = [
     "BlackScholesDeltaHedger",
     "Hedger",
+    "HedgePolicy",
+    "NeuralHedger",
     "bs_call_delta",
     "bs_call_price",
     "compute_pnl",
+    "cvar_loss",
+    "entropic_risk",
     "european_call_payoff",
     "get_device",
+    "set_seed",
     "simulate_gbm",
+    "train_hedger",
 ]

@@ -58,7 +58,7 @@ def test_compute_pnl_zero_position_zero_cost() -> None:
     )
     payoff = european_call_payoff(paths[:, -1], K=100.0)
     positions = torch.zeros(200, 10)
-    pnl = compute_pnl(paths, positions, payoff, cost_bps=0.0)
+    pnl = compute_pnl(paths, positions, payoff, cost_bps=0.0, initial_premium=0.0)
     assert torch.allclose(pnl, -payoff)
 
 
@@ -93,7 +93,7 @@ def test_compute_pnl_costs_only_with_static_unit_position() -> None:
     positions = torch.ones(n_paths, n_steps)
     payoff = torch.zeros(n_paths)
     cost_bps = 10.0  # 10 bps = 0.001
-    pnl = compute_pnl(paths, positions, payoff, cost_bps=cost_bps)
+    pnl = compute_pnl(paths, positions, payoff, cost_bps=cost_bps, initial_premium=0.0)
     # Hedge P&L = 1 * (105 - 100) = 5. Costs = 0.001 * (100 + 105) = 0.205.
     expected = 5.0 - 0.001 * (100.0 + 105.0)
     assert torch.allclose(pnl, torch.full((n_paths,), expected), atol=1e-5)
@@ -104,7 +104,7 @@ def test_compute_pnl_shape_validation() -> None:
     positions_bad = torch.zeros(10, 4)
     payoff = torch.zeros(10)
     try:
-        compute_pnl(paths, positions_bad, payoff)
+        compute_pnl(paths, positions_bad, payoff, cost_bps=0.0, initial_premium=0.0)
     except ValueError:
         return
     raise AssertionError("expected ValueError on mismatched n_steps")
